@@ -1,0 +1,52 @@
+﻿# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+.env/
+
+# Cache & Outputs
+cache/
+outputs/
+.cache/
+
+# Dataset (büyük dosyalar git'e gitmemeli)
+data/dataset/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+
+# Embedding & Index files (çok önemli)
+*.npy
+*.npz
+
+# Jupyter (eğer sonradan açarsan)
+.ipynb_checkpoints/
+
+# Python packaging
+*.egg-info/
+dist/
+build/
+
+# Pytest cache
+.pytest_cache/
+
+# Environment variables
+.env.local
+.env.*
+
+# Mac/Linux temp (cross-platform güvenli)
+*.swp
+*.swo
