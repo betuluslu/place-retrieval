@@ -88,22 +88,26 @@ Important Notes:
 ## Project Structure
 ```
 place-retrieval/
- ├── src/place_retrieval/
- │   ├── data.py
- │   ├── embeddings.py
- │   ├── index.py
- │   └── metrics.py
- ├── scripts/
- │   ├── validate_dataset.py
- │   ├── extract_embeddings.py
- │   ├── build_index.py
- │   ├── search.py
- │   └── evaluate.py
- ├── tests/
- │   └── test_metrics.py
- ├── .gitignore
- ├── README.md
- └── requirements.txt
+├── src/place_retrieval/
+│   ├── data.py
+│   ├── embeddings.py
+│   ├── index.py
+│   └── metrics.py
+├── scripts/
+│   ├── validate_dataset.py
+│   ├── extract_embeddings.py
+│   ├── build_index.py
+│   ├── search.py
+│   └── evaluate.py
+├── tests/
+│   └── test_metrics.py
+├── data/                  # Place the dataset here (data/dataset/)
+│   └── .gitkeep
+├── cache/
+├── outputs/
+├── .gitignore
+├── README.md
+└── requirements.txt
 ```
 
 
