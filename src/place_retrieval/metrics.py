@@ -10,8 +10,20 @@ def recall_at_k(
     k: int,
 ) -> float:
     """
-    ranked_gallery_labels[i] = top-ranked gallery labels for query i (ordered best->worst)
-    true_labels[i] = list/set of acceptable labels for query i (multi-positive supported)
+    Computes Recall@K for retrieval.
+    For each query, we check if at least ONE correct label
+    appears in the top-K retrieved results.
+
+    Args:
+        ranked_gallery_labels[i]:
+            Ordered predictions for query i (best -> worst)
+        true_labels[i]:
+            List of correct labels for query i (multi-positive)
+        k:
+            Top-K threshold (e.g., K=1,5,10)
+
+    Returns:
+        Recall@K score between 0 and 1
     """
     assert len(ranked_gallery_labels) == len(true_labels)
     hit = 0
@@ -32,9 +44,15 @@ def average_precision(
     true_labels: Sequence[str],
 ) -> float:
     """
-    Proper AP:
-    AP = sum(P@k * rel(k)) / (#relevant)
+    Computes Average Precision (AP) for a single query.
+
+    Mathematical idea:
+    AP = sum( Precision@k * relevance(k) ) / number_of_relevant_items
+
+    - Supports multi-positive labels
+    - Returns 0 if query is open-set (no true labels)
     """
+
     if not true_labels:
         return 0.0
 
@@ -59,8 +77,21 @@ def mean_average_precision(
     true_labels: Sequence[Sequence[str]],
 ) -> float:
     """
-    Proper mAP: mean of AP over VALID queries only (exclude open-set)
+    Computes mean Average Precision (mAP) over all VALID queries.
+
+    - Open-set queries are EXCLUDED from mAP
+    - Only queries with true matches are evaluated
+
+    Args:
+        ranked_gallery_labels:
+            List of ranked predictions for each query
+        true_labels:
+            List of ground-truth labels for each query
+
+    Returns:
+        mAP score (float)
     """
+
     ap_list = []
 
     for preds, trues in zip(ranked_gallery_labels, true_labels):

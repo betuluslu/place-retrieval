@@ -18,15 +18,35 @@ LOGGER = logging.getLogger("place_retrieval.embeddings")
 
 @dataclass(frozen=True)
 class EmbeddingBatch:
+    """
+    This class stores the result of embedding extraction.
+
+    paths: relative image paths (to keep mapping with embeddings)
+    embeddings: numpy array of shape (B, D)
+                B = number of images
+                D = embedding dimension (2048 for ResNet50)
+
+    We keep paths + embeddings together so we can later match
+    query results with actual image files.
+    """
+
     paths: List[str]
     embeddings: np.ndarray  # shape: (B, D), float32, L2-normalized
 
 
 def _build_backbone(device: torch.device) -> Tuple[nn.Module, int]:
     """
-    Baseline: ResNet50 backbone without classifier head.
-    Returns (model, embedding_dim).
+    Builds the feature extraction model (ResNet50).
+
+    Important design choice:
+    - We REMOVE the classification head (fc layer)
+    - So the model outputs feature vectors instead of class predictions
+
+    Returns:
+        model: ResNet50 backbone used as feature extractor
+        embedding_dim: output feature size (2048)
     """
+
     model = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
     # remove classification head => output becomes (B, 2048)
     model.fc = nn.Identity()
@@ -35,6 +55,18 @@ def _build_backbone(device: torch.device) -> Tuple[nn.Module, int]:
 
 
 def _preprocess() -> transforms.Compose:
+    """
+    Returns the correct preprocessing pipeline for ResNet50.
+
+    This includes:
+    - Resize
+    - Center crop
+    - Normalization (ImageNet mean/std)
+
+    Using official weights.transforms() ensures consistency
+    with how the model was trained.
+    """
+
     weights = models.ResNet50_Weights.DEFAULT
     return weights.transforms()
 
@@ -46,6 +78,22 @@ def extract_embeddings(
     batch_size: int = 32,
     device_str: str = "cpu",
 ) -> EmbeddingBatch:
+    """
+    Main function to extract embeddings from images.
+
+    Pipeline:
+    1. Load pretrained backbone (ResNet50)
+    2. Preprocess images
+    3. Run batched inference
+    4. Apply L2 normalization
+    5. Return embeddings as numpy array
+
+    Why batching?
+    - Faster inference
+    - Lower memory overhead
+    - Scalable to larger datasets
+    """
+
     device = torch.device(device_str)
 
     model, dim = _build_backbone(device)
@@ -59,6 +107,14 @@ def extract_embeddings(
     batch_paths = []
 
     def flush():
+        """
+        Processes the current batch:
+        - Stack tensors
+        - Forward pass through model
+        - L2 normalize embeddings
+        - Convert to numpy
+        - Store results
+        """
         if not batch_imgs:
             return
         x = torch.stack(batch_imgs).to(device)  # (B,3,H,W)

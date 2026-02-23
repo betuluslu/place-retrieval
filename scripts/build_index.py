@@ -6,6 +6,7 @@ import numpy as np
 
 
 def main():
+    # Builds a retrieval index from cached embeddings.
     p = argparse.ArgumentParser()
     p.add_argument("--cache-dir", type=str, default="cache/embeddings_resnet50")
     p.add_argument("--out", type=str, default="cache/index_resnet50.npz")
@@ -14,6 +15,19 @@ def main():
     cache_dir = Path(args.cache_dir)
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    """
+    Load gallery embeddings and paths from cache.
+
+    gallery_embeddings.npy:
+        Shape = (N, D)
+        N = number of gallery images
+        D = embedding dimension (2048 for ResNet50)
+
+    gallery_paths.json:
+        List of relative file paths for each embedding
+        Used to map retrieval results back to image files
+    """
 
     gallery_embs = np.load(cache_dir / "gallery_embeddings.npy")
     gallery_paths = json.loads((cache_dir / "gallery_paths.json").read_text())

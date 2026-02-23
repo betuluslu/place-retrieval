@@ -12,6 +12,16 @@ logging.basicConfig(level=logging.INFO)
 
 
 def main():
+    """
+    Extracts image embeddings and saves them to cache files.
+
+    - Loads dataset records from manifest.csv
+    - Splits images into gallery and query
+    - Extracts embeddings using the model
+    - Saves embeddings and paths to disk (.npy + .json)
+
+    If cache files already exist, it skips extraction to save time.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset-root", type=str, default="data/dataset")
     parser.add_argument("--out-dir", type=str, default="cache/embeddings_resnet50")
@@ -22,6 +32,14 @@ def main():
     dataset_root = Path(args.dataset_root)
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+
+    """
+    Load all image records from manifest.csv.
+    Each record contains:
+    - relpath
+    - split (gallery or query)
+    - class info
+    """
 
     records = load_manifest(dataset_root)
 

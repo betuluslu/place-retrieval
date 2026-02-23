@@ -16,6 +16,14 @@ LOGGER = logging.getLogger("place_retrieval.data")
 
 @dataclass(frozen=True)
 class ImageRecord:
+    """
+    This class represents a single image entry from manifest.csv.
+
+    Why we use this:
+    - Keeps dataset information clean and structured
+    - Easier to debug and track images
+    - Avoids using raw dicts everywhere
+    """
     image_id: str
     relpath: str
     split: str          # "gallery" or "query"
@@ -25,11 +33,21 @@ class ImageRecord:
 
     @property
     def key(self) -> Tuple[str, str]:
-        # (split, relpath) - unique per file ideally
+        """
+        Unique key for an image.
+        Useful to detect duplicates across splits.
+        """
         return (self.split, self.relpath)
 
 
 def _md5_file(path: Path, chunk_size: int = 1024 * 1024) -> str:
+    """
+    Compute MD5 hash of a file.
+
+    Why we do this:
+    - To detect duplicate images between gallery and query
+    - Prevent data leakage (VERY important for evaluation)
+    """
     h = hashlib.md5()
     with path.open("rb") as f:
         while True:
@@ -42,8 +60,16 @@ def _md5_file(path: Path, chunk_size: int = 1024 * 1024) -> str:
 
 def _safe_open_image(path: Path) -> Optional[Image.Image]:
     """
-    Returns PIL image if readable; otherwise None.
-    Converts grayscale to RGB.
+    Safely opens an image.
+
+    What this function handles:
+    - Missing files
+    - Corrupted images
+    - Unsupported formats
+    - Grayscale to RGB conversion
+
+    Returns:
+        PIL Image if valid, otherwise None
     """
     try:
         img = Image.open(path)
@@ -60,7 +86,17 @@ def _safe_open_image(path: Path) -> Optional[Image.Image]:
 
 def load_manifest(dataset_root: Path) -> List[ImageRecord]:
     """
-    dataset_root should contain manifest.csv and landmarks/...
+    Loads manifest.csv and converts each row into ImageRecord objects.
+
+    Expected structure:
+    dataset_root/
+        manifest.csv
+        landmarks/...
+
+    Why this is important:
+    - Central source of truth for dataset
+    - Prevents hardcoding file paths
+    - Ensures reproducibility
     """
     manifest_path = dataset_root / "manifest.csv"
     if not manifest_path.exists():
@@ -99,12 +135,15 @@ def validate_dataset(
     check_cross_split_duplicate_md5: bool = True,
 ) -> dict:
     """
-    Validates:
-    - All relpaths exist
-    - Images decodable
-    - Min resolution
-    - (Optional) md5 duplicates across gallery/query (leakage risk)
-    Returns summary dict.
+    Validates the dataset quality and integrity.
+
+    This function checks:
+    - Missing image files
+    - Unreadable or corrupted images
+    - Very small images (low quality)
+    - Data leakage (same image in gallery and query)
+
+    This is CRITICAL for a robust ML pipeline.
     """
     records = load_manifest(dataset_root)
 

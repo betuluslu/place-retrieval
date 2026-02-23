@@ -14,6 +14,16 @@ def _class_dir_from_relpath(relpath: str) -> str:
 
 
 def main():
+    """
+    Evaluates the retrieval system.
+
+    - Loads gallery and query embeddings from cache
+    - Computes similarity between query and gallery
+    - Ranks gallery images for each query
+    - Calculates Recall@K and mAP
+    - Detects UNKNOWN (open-set) queries using a threshold
+    """
+
     p = argparse.ArgumentParser()
     p.add_argument("--dataset-root", type=str, default="data/dataset")  # kept for compatibility
     p.add_argument("--cache-dir", type=str, default="cache/embeddings_resnet50")
@@ -74,6 +84,8 @@ def main():
             fp += 1
         elif true_is_unknown[i] and (not pred_is_unknown):
             fn += 1
+
+    # Convert k-list string (e.g. "1,5,10") into integer list [1, 5, 10]
 
     k_list = [int(x.strip()) for x in args.k_list.split(",") if x.strip()]
 

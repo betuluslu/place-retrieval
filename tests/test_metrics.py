@@ -2,7 +2,17 @@ from place_retrieval.metrics import average_precision, mean_average_precision, r
 
 
 def test_average_precision_single_positive():
-    # One relevant item exists, ranked at position 2
+    """
+    This test checks Average Precision for a single relevant item.
+
+    Scenario:
+    - Only one correct label exists ("A")
+    - It appears at rank position 2 in the ranked list
+
+    Expected:
+    AP = precision at the hit position = 1/2 = 0.5
+    """
+
     ranked = ["x", "A", "y", "z"]
     true = ["A"]
 
@@ -12,7 +22,14 @@ def test_average_precision_single_positive():
 
 
 def test_metrics_multi_positive_query():
-    # Two relevant items: A and B
+    """
+    This test checks metrics when there are multiple correct labels.
+
+    Scenario:
+    - Two correct labels: A and B
+    - Both appear in the ranked results
+    - This simulates a multi-positive retrieval case
+    """
     ranked = ["A", "x", "B", "y"]
     true = ["A", "B"]
 

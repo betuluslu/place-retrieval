@@ -8,6 +8,18 @@ from place_retrieval.index import search_one
 
 
 def main():
+    """
+    Runs similarity search for query images.
+
+    - Loads cached gallery and query embeddings
+    - Selects a query embedding
+    - Finds the most similar gallery images (Top-K)
+    - Prints ranked results with similarity scores
+
+    Search:
+    - One specific query (using --query-idx)
+    - Or multiple queries (preview mode)
+    """
     p = argparse.ArgumentParser()
     p.add_argument("--cache-dir", type=str, default="cache/embeddings_resnet50")
     p.add_argument("--top-k", type=int, default=5)
