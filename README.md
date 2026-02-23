@@ -102,7 +102,9 @@ place-retrieval/
 ├── tests/
 │   └── test_metrics.py
 ├── data/                  # Place the dataset here (data/dataset/)
-│   └── .gitkeep
+│   └── dataset
+│        ├── landmarks
+│        └── manifest.csv        
 ├── cache/
 ├── outputs/
 ├── .gitignore
