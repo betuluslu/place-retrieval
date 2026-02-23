@@ -135,6 +135,10 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
+Module Imports:
+```bash
+pip install -e .
+```
 
 ## How to Run the Pipeline
 This section provides step-by-step commands to reproduce the full retrieval pipeline from dataset validation to evaluation.
